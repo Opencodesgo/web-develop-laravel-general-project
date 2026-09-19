@@ -1,0 +1,24 @@
+<?php
+/**
+ * Intervention，图像，编辑器，Trim 编辑器
+ */
+
+declare(strict_types=1);
+
+namespace Intervention\Image\Modifiers;
+
+use Intervention\Image\Drivers\SpecializableModifier;
+
+class TrimModifier extends SpecializableModifier
+{
+    /**
+     * Create new modifier object
+	 * 创建新的修饰符对象
+     *
+     * @return void
+     */
+    public function __construct(public int $tolerance = 0)
+    {
+        //
+    }
+}

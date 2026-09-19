@@ -1,5 +1,9 @@
-Laravel Version: 6.20.44
-PHP Version: 7.2
-Start Date: 2024-12-25
-Date: 2019-09-04
-Version2: v1.0
+
+Laravel Version: 9.52.20
+LTS FLAG
+PHP Version: 8.1
+Frame Start Date: 2022-02-08
+Frame End Date: 2024-02-06
+
+Version2: v1.0.1
+Start Date: 2026-08-28

@@ -1,0 +1,19 @@
+<?php
+/**
+ * Illuminate，基础，控制台，存根，根据需要实际修改
+ */
+
+/*
+|--------------------------------------------------------------------------
+| Load The Cached Routes	加载缓存的路由
+|--------------------------------------------------------------------------
+|
+| Here we will decode and unserialize the RouteCollection instance that
+| holds all of the route information for an application. This allows
+| us to instantaneously load the entire route map into the router.
+|
+*/
+
+app('router')->setCompiledRoutes(
+    {{routes}}
+);

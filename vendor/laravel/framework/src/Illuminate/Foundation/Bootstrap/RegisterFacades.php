@@ -1,0 +1,33 @@
+<?php
+/**
+ * Illuminate，基础，引导，注册门面
+ */
+
+namespace Illuminate\Foundation\Bootstrap;
+
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Foundation\AliasLoader;
+use Illuminate\Foundation\PackageManifest;
+use Illuminate\Support\Facades\Facade;
+
+class RegisterFacades
+{
+    /**
+     * Bootstrap the given application.
+	 * 引导给定的应用程序
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return void
+     */
+    public function bootstrap(Application $app)
+    {
+        Facade::clearResolvedInstances();
+
+        Facade::setFacadeApplication($app);
+
+        AliasLoader::getInstance(array_merge(
+            $app->make('config')->get('app.aliases', []),
+            $app->make(PackageManifest::class)->aliases()
+        ))->register();
+    }
+}

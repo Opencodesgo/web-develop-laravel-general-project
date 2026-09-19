@@ -1,0 +1,103 @@
+<?php
+/**
+ * Illuminate，路由，控制器调度
+ */
+
+namespace Illuminate\Routing;
+
+use Illuminate\Container\Container;
+use Illuminate\Routing\Contracts\ControllerDispatcher as ControllerDispatcherContract;
+
+class ControllerDispatcher implements ControllerDispatcherContract
+{
+    use RouteDependencyResolverTrait;
+
+    /**
+     * The container instance.
+	 * 容器实例
+     *
+     * @var \Illuminate\Container\Container
+     */
+    protected $container;
+
+    /**
+     * Create a new controller dispatcher instance.
+	 * 创建一个新的控制器调度程序实例
+     *
+     * @param  \Illuminate\Container\Container  $container
+     * @return void
+     */
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * Dispatch a request to a given controller and method.
+	 * 将请求分派给给定的控制器和方法
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  mixed  $controller
+     * @param  string  $method
+     * @return mixed
+     */
+    public function dispatch(Route $route, $controller, $method)
+    {
+        $parameters = $this->resolveParameters($route, $controller, $method);
+
+        if (method_exists($controller, 'callAction')) {
+            return $controller->callAction($method, $parameters);
+        }
+
+        return $controller->{$method}(...array_values($parameters));
+    }
+
+    /**
+     * Resolve the parameters for the controller.
+	 * 解析控制器的参数
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  mixed  $controller
+     * @param  string  $method
+     * @return array
+     */
+    protected function resolveParameters(Route $route, $controller, $method)
+    {
+        return $this->resolveClassMethodDependencies(
+            $route->parametersWithoutNulls(), $controller, $method
+        );
+    }
+
+    /**
+     * Get the middleware for the controller instance.
+	 * 获取控制器实例的中间件
+     *
+     * @param  \Illuminate\Routing\Controller  $controller
+     * @param  string  $method
+     * @return array
+     */
+    public function getMiddleware($controller, $method)
+    {
+        if (! method_exists($controller, 'getMiddleware')) {
+            return [];
+        }
+
+        return collect($controller->getMiddleware())->reject(function ($data) use ($method) {
+            return static::methodExcludedByOptions($method, $data['options']);
+        })->pluck('middleware')->all();
+    }
+
+    /**
+     * Determine if the given options exclude a particular method.
+	 * 确定给定选项是否排除特定方法
+     *
+     * @param  string  $method
+     * @param  array  $options
+     * @return bool
+     */
+    public static function methodExcludedByOptions($method, array $options)
+    {
+        return (isset($options['only']) && ! in_array($method, (array) $options['only'])) ||
+            (! empty($options['except']) && in_array($method, (array) $options['except']));
+    }
+}

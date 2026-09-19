@@ -1,0 +1,33 @@
+<?php
+/**
+ * Illuminate，基础，控制台，存根，根据需要实际修改
+ */
+
+namespace {{ namespace }};
+
+use Illuminate\Support\ServiceProvider;
+
+class {{ class }} extends ServiceProvider
+{
+    /**
+     * Register services.
+	 * 注册服务
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**
+     * Bootstrap services.
+	 * 引导服务
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+}

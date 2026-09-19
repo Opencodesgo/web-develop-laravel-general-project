@@ -1,0 +1,289 @@
+<?php
+/**
+ * Illuminate，基础，控制台，make:model 模型制作命令
+ */
+
+namespace Illuminate\Foundation\Console;
+
+use Illuminate\Console\Concerns\CreatesMatchingTest;
+use Illuminate\Console\GeneratorCommand;
+use Illuminate\Support\Str;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
+#[AsCommand(name: 'make:model')]
+class ModelMakeCommand extends GeneratorCommand
+{
+    use CreatesMatchingTest;
+
+    /**
+     * The console command name.
+	 * 控制台命令名称
+     *
+     * @var string
+     */
+    protected $name = 'make:model';
+
+    /**
+     * The name of the console command.
+	 * 控制台命令名称
+     *
+     * This name is used to identify the command during lazy loading.
+	 * 此名称用于在惰性加载期间识别命令
+     *
+     * @var string|null
+     *
+     * @deprecated
+     */
+    protected static $defaultName = 'make:model';
+
+    /**
+     * The console command description.
+	 * 控制台命令说明
+     *
+     * @var string
+     */
+    protected $description = 'Create a new Eloquent model class';
+
+    /**
+     * The type of class being generated.
+	 * 生成的类的类型
+     *
+     * @var string
+     */
+    protected $type = 'Model';
+
+    /**
+     * Execute the console command.
+	 * 执行控制台命令
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        if (parent::handle() === false && ! $this->option('force')) {
+            return false;
+        }
+
+        if ($this->option('all')) {
+            $this->input->setOption('factory', true);
+            $this->input->setOption('seed', true);
+            $this->input->setOption('migration', true);
+            $this->input->setOption('controller', true);
+            $this->input->setOption('policy', true);
+            $this->input->setOption('resource', true);
+        }
+
+        if ($this->option('factory')) {
+            $this->createFactory();
+        }
+
+        if ($this->option('migration')) {
+            $this->createMigration();
+        }
+
+        if ($this->option('seed')) {
+            $this->createSeeder();
+        }
+
+        if ($this->option('controller') || $this->option('resource') || $this->option('api')) {
+            $this->createController();
+        }
+
+        if ($this->option('policy')) {
+            $this->createPolicy();
+        }
+    }
+
+    /**
+     * Create a model factory for the model.
+	 * 为模型创建一个模型工厂
+     *
+     * @return void
+     */
+    protected function createFactory()
+    {
+        $factory = Str::studly($this->argument('name'));
+
+        $this->call('make:factory', [
+            'name' => "{$factory}Factory",
+            '--model' => $this->qualifyClass($this->getNameInput()),
+        ]);
+    }
+
+    /**
+     * Create a migration file for the model.
+	 * 为模型创建一个迁移文件
+     *
+     * @return void
+     */
+    protected function createMigration()
+    {
+        $table = Str::snake(Str::pluralStudly(class_basename($this->argument('name'))));
+
+        if ($this->option('pivot')) {
+            $table = Str::singular($table);
+        }
+
+        $this->call('make:migration', [
+            'name' => "create_{$table}_table",
+            '--create' => $table,
+            '--fullpath' => true,
+        ]);
+    }
+
+    /**
+     * Create a seeder file for the model.
+	 * 为模型创建一个种子文件
+     *
+     * @return void
+     */
+    protected function createSeeder()
+    {
+        $seeder = Str::studly(class_basename($this->argument('name')));
+
+        $this->call('make:seeder', [
+            'name' => "{$seeder}Seeder",
+        ]);
+    }
+
+    /**
+     * Create a controller for the model.
+	 * 为模型创建一个控制器
+     *
+     * @return void
+     */
+    protected function createController()
+    {
+        $controller = Str::studly(class_basename($this->argument('name')));
+
+        $modelName = $this->qualifyClass($this->getNameInput());
+
+        $this->call('make:controller', array_filter([
+            'name' => "{$controller}Controller",
+            '--model' => $this->option('resource') || $this->option('api') ? $modelName : null,
+            '--api' => $this->option('api'),
+            '--requests' => $this->option('requests') || $this->option('all'),
+        ]));
+    }
+
+    /**
+     * Create a policy file for the model.
+	 * 为模型创建一个策略文件
+     *
+     * @return void
+     */
+    protected function createPolicy()
+    {
+        $policy = Str::studly(class_basename($this->argument('name')));
+
+        $this->call('make:policy', [
+            'name' => "{$policy}Policy",
+            '--model' => $this->qualifyClass($this->getNameInput()),
+        ]);
+    }
+
+    /**
+     * Get the stub file for the generator.
+	 * 获取生成器的存根文件
+     *
+     * @return string
+     */
+    protected function getStub()
+    {
+        if ($this->option('pivot')) {
+            return $this->resolveStubPath('/stubs/model.pivot.stub');
+        }
+
+        if ($this->option('morph-pivot')) {
+            return $this->resolveStubPath('/stubs/model.morph-pivot.stub');
+        }
+
+        return $this->resolveStubPath('/stubs/model.stub');
+    }
+
+    /**
+     * Resolve the fully-qualified path to the stub.
+	 * 解析到存根的全限定路径
+     *
+     * @param  string  $stub
+     * @return string
+     */
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+                        ? $customPath
+                        : __DIR__.$stub;
+    }
+
+    /**
+     * Get the default namespace for the class.
+	 * 获取类的默认名称空间
+     *
+     * @param  string  $rootNamespace
+     * @return string
+     */
+    protected function getDefaultNamespace($rootNamespace)
+    {
+        return is_dir(app_path('Models')) ? $rootNamespace.'\\Models' : $rootNamespace;
+    }
+
+    /**
+     * Get the console command options.
+	 * 获取控制台命令选项
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['all', 'a', InputOption::VALUE_NONE, 'Generate a migration, seeder, factory, policy, resource controller, and form request classes for the model'],
+            ['controller', 'c', InputOption::VALUE_NONE, 'Create a new controller for the model'],
+            ['factory', 'f', InputOption::VALUE_NONE, 'Create a new factory for the model'],
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the model already exists'],
+            ['migration', 'm', InputOption::VALUE_NONE, 'Create a new migration file for the model'],
+            ['morph-pivot', null, InputOption::VALUE_NONE, 'Indicates if the generated model should be a custom polymorphic intermediate table model'],
+            ['policy', null, InputOption::VALUE_NONE, 'Create a new policy for the model'],
+            ['seed', 's', InputOption::VALUE_NONE, 'Create a new seeder for the model'],
+            ['pivot', 'p', InputOption::VALUE_NONE, 'Indicates if the generated model should be a custom intermediate table model'],
+            ['resource', 'r', InputOption::VALUE_NONE, 'Indicates if the generated controller should be a resource controller'],
+            ['api', null, InputOption::VALUE_NONE, 'Indicates if the generated controller should be an API resource controller'],
+            ['requests', 'R', InputOption::VALUE_NONE, 'Create new form request classes and use them in the resource controller'],
+        ];
+    }
+
+    /**
+     * Interact further with the user if they were prompted for missing arguments.
+	 * 如果提示用户输入缺少的参数，则与用户进一步交互。
+     *
+     * @param  \Symfony\Component\Console\Input\InputInterface  $input
+     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+     * @return void
+     */
+    protected function afterPromptingForMissingArguments(InputInterface $input, OutputInterface $output)
+    {
+        if ($this->isReservedName($this->getNameInput()) || $this->didReceiveOptions($input)) {
+            return;
+        }
+
+        collect($this->components->choice('Would you like any of the following?', [
+            'none',
+            'all',
+            'factory',
+            'form requests',
+            'migration',
+            'policy',
+            'resource controller',
+            'seed',
+        ], default: 0, multiple: true))
+        ->reject('none')
+        ->map(fn ($option) => match ($option) {
+            'resource controller' => 'resource',
+            'form requests' => 'requests',
+            default => $option,
+        })
+        ->each(fn ($option) => $input->setOption($option, true));
+    }
+}

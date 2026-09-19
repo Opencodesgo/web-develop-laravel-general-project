@@ -1,0 +1,27 @@
+<?php
+/**
+ * Intervention，图像，编辑器，Pad 编辑器
+ */
+
+declare(strict_types=1);
+
+namespace Intervention\Image\Modifiers;
+
+use Intervention\Image\Interfaces\ImageInterface;
+use Intervention\Image\Interfaces\SizeInterface;
+
+class PadModifier extends ContainModifier
+{
+    public function getCropSize(ImageInterface $image): SizeInterface
+    {
+        return $image->size()
+            ->containMax(
+                $this->width,
+                $this->height
+            )
+            ->alignPivotTo(
+                $this->getResizeSize($image),
+                $this->position
+            );
+    }
+}

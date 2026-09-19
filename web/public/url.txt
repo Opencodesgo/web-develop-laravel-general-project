@@ -1,2 +1,0 @@
-
-主入口	http://localhost:9023/index

@@ -1,0 +1,73 @@
+<?php
+/**
+ * Illuminate，路由，控制台，存根，根据实际需要修改
+ */
+
+namespace {{ namespace }};
+
+use {{ namespacedModel }};
+use {{ rootNamespace }}Http\Controllers\Controller;
+use {{ namespacedRequests }}
+
+class {{ class }} extends Controller
+{
+    /**
+     * Display a listing of the resource.
+	 * 显示资源的列表
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+	 * 将新创建的资源存储在存储器中
+     *
+     * @param  \{{ namespacedStoreRequest }}  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store({{ storeRequest }} $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+	 * 显示指定资源
+     *
+     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @return \Illuminate\Http\Response
+     */
+    public function show({{ model }} ${{ modelVariable }})
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+	 * 更新存储中的指定资源
+     *
+     * @param  \{{ namespacedUpdateRequest }}  $request
+     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @return \Illuminate\Http\Response
+     */
+    public function update({{ updateRequest }} $request, {{ model }} ${{ modelVariable }})
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+	 * 从存储中移除指定的资源
+     *
+     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy({{ model }} ${{ modelVariable }})
+    {
+        //
+    }
+}

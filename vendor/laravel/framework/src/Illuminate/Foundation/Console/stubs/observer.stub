@@ -1,0 +1,71 @@
+<?php
+/**
+ * Illuminate，基础，控制台，存根，根据需要实际修改
+ */
+
+namespace {{ namespace }};
+
+use {{ namespacedModel }};
+
+class {{ class }}
+{
+    /**
+     * Handle the {{ model }} "created" event.
+	 * 处理{{model}} "created"事件
+     *
+     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @return void
+     */
+    public function created({{ model }} ${{ modelVariable }})
+    {
+        //
+    }
+
+    /**
+     * Handle the {{ model }} "updated" event.
+	 * 处理{{model}} "updated"事件
+     *
+     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @return void
+     */
+    public function updated({{ model }} ${{ modelVariable }})
+    {
+        //
+    }
+
+    /**
+     * Handle the {{ model }} "deleted" event.
+	 * 处理{{model}} "deleted"事件
+     *
+     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @return void
+     */
+    public function deleted({{ model }} ${{ modelVariable }})
+    {
+        //
+    }
+
+    /**
+     * Handle the {{ model }} "restored" event.
+	 * 处理{{model}} "已恢复"事件
+     *
+     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @return void
+     */
+    public function restored({{ model }} ${{ modelVariable }})
+    {
+        //
+    }
+
+    /**
+     * Handle the {{ model }} "force deleted" event.
+	 * 处理{{model}} "force deleted"事件
+     *
+     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @return void
+     */
+    public function forceDeleted({{ model }} ${{ modelVariable }})
+    {
+        //
+    }
+}
